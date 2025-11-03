@@ -1,0 +1,23 @@
+<app-navbar></app-navbar>
+
+<div class="p-8 max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold mb-6 text-gray-800">Generador de Horario</h1>
+
+  <div class="p-6 bg-white rounded-xl shadow-lg text-center">
+    <p class="text-lg text-gray-600 mb-6">
+      El sistema generará un documento PDF de tu horario actual. 
+      **Debes seleccionar la opción "Guardar como PDF" o "Microsoft Print to PDF"** en el diálogo de impresión que aparecerá.
+    </p>
+    
+    <button 
+      (click)="generarPDF()"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-150 shadow-md hover:shadow-lg">
+      Generar y Descargar Horario (PDF)
+    </button>
+    
+    <p *ngIf="pdfStatus" class="mt-4 text-sm font-medium p-2 rounded-lg"
+       [ngClass]="{'text-green-700 bg-green-50': !pdfStatus.includes('Error'), 'text-red-700 bg-red-50': pdfStatus.includes('Error')}">
+      {{ pdfStatus }}
+    </p>
+  </div>
+</div>

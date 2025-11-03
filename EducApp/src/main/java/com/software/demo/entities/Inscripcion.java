@@ -1,6 +1,7 @@
 package com.software.demo.entities;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 
@@ -14,8 +15,17 @@ public class Inscripcion {
     @Column(name = "fecha_inscripcion", nullable = false)
     private LocalDate fechaInscripcion;
 
+    @Column(name = "fecha_cancelacion")
+    private LocalDate fechaCancelacion;
+
     @Column(name = "estado", nullable = false)
     private String estado; // ACTIVA, CANCELADA
+
+    @Column(name = "operador_audit")
+    private String operadorAudit;
+
+    @Column(name = "audit_timestamp")
+    private LocalDateTime auditTimestamp;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estudiante_id", nullable = false)
@@ -28,11 +38,13 @@ public class Inscripcion {
     // Constructores
     public Inscripcion() {}
     
-    public Inscripcion(Estudiante estudiante, Asignatura asignatura) {
+    public Inscripcion(Estudiante estudiante, Asignatura asignatura, String operador) {
         this.estudiante = estudiante;
         this.asignatura = asignatura;
         this.fechaInscripcion = LocalDate.now();
         this.estado = "ACTIVA";
+        this.operadorAudit = operador;
+        this.auditTimestamp = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -51,12 +63,36 @@ public class Inscripcion {
         this.fechaInscripcion = fechaInscripcion;
     }
 
+    public LocalDate getFechaCancelacion() {
+        return fechaCancelacion;
+    }
+
+    public void setFechaCancelacion(LocalDate fechaCancelacion) {
+        this.fechaCancelacion = fechaCancelacion;
+    }
+
     public String getEstado() {
         return estado;
     }
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public String getOperadorAudit() {
+        return operadorAudit;
+    }
+
+    public void setOperadorAudit(String operadorAudit) {
+        this.operadorAudit = operadorAudit;
+    }
+
+    public LocalDateTime getAuditTimestamp() {
+        return auditTimestamp;
+    }
+
+    public void setAuditTimestamp(LocalDateTime auditTimestamp) {
+        this.auditTimestamp = auditTimestamp;
     }
 
     public Estudiante getEstudiante() {

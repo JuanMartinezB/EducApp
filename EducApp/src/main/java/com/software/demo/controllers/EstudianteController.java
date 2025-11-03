@@ -1,6 +1,8 @@
 package com.software.demo.controllers;
 
+import com.software.demo.dtos.EstudianteListadoDTO;
 import com.software.demo.entities.Estudiante;
+import com.software.demo.mappers.EstudianteMapper;
 import com.software.demo.services.EstudianteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,30 +10,42 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/estudiantes")
+@CrossOrigin(origins = "http://localhost:4200")
 public class EstudianteController {
 
     @Autowired
     private EstudianteService estudianteService;
 
     @GetMapping
-    public List<Estudiante> getAllEstudiantes() {
-        return estudianteService.findAll();
+    public List<EstudianteListadoDTO> getAllEstudiantes() {
+        return estudianteService.findAll().stream()
+                .map(EstudianteMapper::toEstudianteListadoDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Estudiante> getEstudianteById(@PathVariable Long id) {
-        Optional<Estudiante> estudiante = estudianteService.findById(id);
-        return estudiante.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    public ResponseEntity<EstudianteListadoDTO> getEstudianteById(@PathVariable Long id) {
+        
+        Optional<Estudiante> estudianteOptional = estudianteService.findById(id); 
 
+        if (estudianteOptional.isEmpty()) { 
+            return ResponseEntity.notFound().build(); 
+        }
+
+        Estudiante estudiante = estudianteOptional.get();
+        EstudianteListadoDTO dto = EstudianteMapper.toEstudianteListadoDTO(estudiante); 
+        return ResponseEntity.ok(dto);
+    }
+    
     @PostMapping
     public Estudiante createEstudiante(@RequestBody Estudiante estudiante) {
         return estudianteService.save(estudiante);
     }
-
+    
     @PutMapping("/{id}")
     public ResponseEntity<Estudiante> updateEstudiante(@PathVariable Long id, @RequestBody Estudiante estudianteDetails) {
         Optional<Estudiante> estudiante = estudianteService.findById(id);
@@ -52,5 +66,4 @@ public class EstudianteController {
             return ResponseEntity.notFound().build();
         }
     }
-
 }

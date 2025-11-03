@@ -1,6 +1,9 @@
 package com.software.demo.controllers;
 
+import com.software.demo.dtos.AsignaturaDTO;
+import com.software.demo.dtos.AsignaturaRequestDTO;
 import com.software.demo.entities.Asignatura;
+import com.software.demo.mappers.AsignaturaMapper;
 import com.software.demo.services.AsignaturaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,36 +11,44 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/asignaturas")
+@CrossOrigin(origins = "http://localhost:4200")
 public class AsignaturaController {
 
     @Autowired
     private AsignaturaService asignaturaService;
 
     @GetMapping
-    public List<Asignatura> getAllAsignaturas() {
-        return asignaturaService.findAll();
+    public List<AsignaturaDTO> getAllAsignaturas() {
+        return asignaturaService.findAll().stream()
+                .map(AsignaturaMapper::toAsignaturaDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Asignatura> getAsignaturaById(@PathVariable Long id) {
-        Optional<Asignatura> asignatura = asignaturaService.findById(id);
-        return asignatura.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<AsignaturaDTO> getAsignaturaById(@PathVariable Long id) {
+        return asignaturaService.findById(id)
+                .map(AsignaturaMapper::toAsignaturaDTO)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Asignatura createAsignatura(@RequestBody Asignatura asignatura) {
-        return asignaturaService.save(asignatura);
+    public AsignaturaDTO createAsignatura(@RequestBody AsignaturaRequestDTO asignaturaRequest) {
+        Asignatura nuevaAsignatura = asignaturaService.saveFromDTO(asignaturaRequest);
+        return AsignaturaMapper.toAsignaturaDTO(nuevaAsignatura);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Asignatura> updateAsignatura(@PathVariable Long id, @RequestBody Asignatura asignaturaDetails) {
-        Optional<Asignatura> asignatura = asignaturaService.findById(id);
-        if (asignatura.isPresent()) {
-            asignaturaDetails.setId(id);
-            return ResponseEntity.ok(asignaturaService.save(asignaturaDetails));
+    public ResponseEntity<AsignaturaDTO> updateAsignatura(@PathVariable Long id, @RequestBody AsignaturaRequestDTO asignaturaDetails) {
+        Optional<Asignatura> asignaturaOptional = asignaturaService.findById(id);
+        
+        if (asignaturaOptional.isPresent()) {
+            Asignatura updatedAsignatura = asignaturaService.updateFromDTO(id, asignaturaDetails);
+            return ResponseEntity.ok(AsignaturaMapper.toAsignaturaDTO(updatedAsignatura));
         } else {
             return ResponseEntity.notFound().build();
         }

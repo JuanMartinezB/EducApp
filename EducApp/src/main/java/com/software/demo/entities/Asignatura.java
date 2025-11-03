@@ -27,8 +27,14 @@ public class Asignatura {
     @Column(name = "cupo_actual", nullable = false)
     private Integer cupoActual = 0;
 
+    @Version
+    private Long version;
+
     @Column(name = "semestre", nullable = false)
     private Integer semestre;
+
+    @Column(name = "horario")
+    private String horario;
     
     @ManyToMany
     @JoinTable(
@@ -44,12 +50,14 @@ public class Asignatura {
     // Constructores
     public Asignatura() {}
     
-    public Asignatura(String codigo, String nombre, Integer creditos, Integer cupoMaximo, Integer semestre) {
+    public Asignatura(String codigo, String nombre, Integer creditos, Integer cupoMaximo, Long version, Integer semestre, String horario) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.creditos = creditos;
         this.cupoMaximo = cupoMaximo;
+        this.version = version;
         this.semestre = semestre;
+        this.horario = horario;
     }
 
     public Long getId() {
@@ -92,6 +100,14 @@ public class Asignatura {
         this.cupoMaximo = cupoMaximo;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     public Integer getCupoActual() {
         return cupoActual;
     }
@@ -106,6 +122,14 @@ public class Asignatura {
 
     public void setSemestre(Integer semestre) {
         this.semestre = semestre;
+    }
+
+    public String getHorario() {
+        return horario;
+    }
+
+    public void setHorario(String horario) {
+        this.horario = horario;
     }
 
     public List<Asignatura> getPrerrequisitos() {

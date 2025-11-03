@@ -1,0 +1,47 @@
+<nav class="bg-blue-600 text-white shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center">
+        <span class="text-xl font-bold">Gestión Académica</span>
+      </div>
+      
+      <div class="flex space-x-4">
+        <a 
+          routerLink="/inscripcion" 
+          routerLinkActive="bg-blue-700 font-bold"
+          class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500 transition duration-150"
+        >
+          Inscripción
+        </a>
+        
+        <a 
+          routerLink="/historial" 
+          routerLinkActive="bg-blue-700 font-bold"
+          class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500 transition duration-150"
+        >
+          Historial Académico
+        </a>
+        
+        <a 
+          routerLink="/horario" 
+          routerLinkActive="bg-blue-700 font-bold"
+          class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500 transition duration-150"
+        >
+          Horario (PDF)
+        </a>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <span class="text-sm font-medium truncate hidden sm:block">
+          Hola, {{ studentName || 'Estudiante' }}
+        </span>
+        <button 
+          (click)="logout()"
+          class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md text-sm font-medium transition duration-150"
+        >
+          Salir
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
