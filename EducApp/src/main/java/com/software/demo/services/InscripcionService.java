@@ -77,6 +77,11 @@ public class InscripcionService {
             }
         }
 
+        int filasAfectadas = asignaturaRepository.incrementCupoIfAvailable(asignaturaId);
+        if (filasAfectadas == 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No hay cupo disponible para esta asignatura");
+        }
+
         List<Inscripcion> activas = inscripcionRepository.findByEstudianteIdAndEstado(estudianteId, "ACTIVA");
         if (activas.size() >= rulesConfig.getMaxActiveEnrollments()) {
             String limite = String.valueOf(rulesConfig.getMaxActiveEnrollments());
@@ -92,9 +97,8 @@ public class InscripcionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya está inscrito en esta asignatura");
         }
 
-        int filasAfectadas = asignaturaRepository.incrementCupoIfAvailable(asignaturaId);
-        if (filasAfectadas == 0) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No hay cupo disponible para esta asignatura");
+        if (historialAcademicoService.hasAlreadyPassed(estudianteId, asignaturaId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya cursó y aprobó esta asignatura anteriormente");
         }
 
         Inscripcion inscripcion = new Inscripcion(estudiante, asignatura, operador);

@@ -29,6 +29,8 @@ public class HistorialAcademicoService {
     @Autowired
     private AsignaturaRepository asignaturaRepository;
 
+    private static final double NOTA_MINIMA_APROBACION = 3.0;
+
     public List<HistorialAcademico> findAll() {
         return historialAcademicoRepository.findAll();
     }
@@ -89,6 +91,12 @@ public class HistorialAcademicoService {
         Optional<HistorialAcademico> historialOpt = historialAcademicoRepository
                 .findByEstudianteIdAndAsignaturaId(estudianteId, id);
         return historialOpt.isPresent() && historialOpt.get().getNota() >= notaMinimaPrerreq;
+    }
+
+    public boolean hasAlreadyPassed(Long estudianteId, Long asignaturaId) {
+        Optional<HistorialAcademico> historialOpt = historialAcademicoRepository
+                .findByEstudianteIdAndAsignaturaId(estudianteId, asignaturaId);
+        return historialOpt.isPresent() && historialOpt.get().getNota() >= NOTA_MINIMA_APROBACION;
     }
     
 }
