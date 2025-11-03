@@ -7,7 +7,6 @@ import com.software.demo.entities.Inscripcion;
 import com.software.demo.repositories.AsignaturaRepository;
 import com.software.demo.repositories.InscripcionRepository;
 import com.software.demo.utils.CalendarioUtils;
-import com.software.demo.utils.HorarioPDFGenerator;
 
 import jakarta.transaction.Transactional;
 
@@ -68,9 +67,9 @@ public class InscripcionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo estudiantes con estado ACTIVO pueden inscribirse");
         }
 
-        // RN02 - Límite de cupos
+        // RN02 - Límite de cupos (Lo hacemos más específico para que Angular lo detecte)
         if (asignatura.getCupoActual() >= asignatura.getCupoMaximo()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No hay cupos disponibles");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cupo máximo alcanzado");
         }
 
         // RN01 - Prerrequisitos: verificar que haya aprobado cada prerrequisito con nota >= 3.0
@@ -84,7 +83,9 @@ public class InscripcionService {
         // Regla de límite de inscripciones activas por estudiante
         List<Inscripcion> activas = inscripcionRepository.findByEstudianteIdAndEstado(estudianteId, "ACTIVA");
         if (activas.size() >= rulesConfig.getMaxActiveEnrollments()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ha alcanzado el número máximo de inscripciones activas");
+            // 🚨 MEJORA: Incluir el número en el mensaje.
+            String limite = String.valueOf(rulesConfig.getMaxActiveEnrollments());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ha alcanzado el límite máximo de " + limite + " inscripciones activas");
         }
 
         // RN04 - Conflictos de horario (verificación básica)
@@ -92,9 +93,9 @@ public class InscripcionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Conflicto de horario con otra asignatura inscrita");
         }
 
-        // Evitar inscribir doble la misma asignatura activa
         boolean alreadyActive = inscripcionRepository.existsByEstudianteIdAndAsignaturaIdAndEstado(estudianteId, asignaturaId, "ACTIVA");
         if (alreadyActive) {
+            // Código y mensaje perfectos para Angular
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya está inscrito en esta asignatura");
         }
 
@@ -164,26 +165,6 @@ public class InscripcionService {
 
     public void deleteById(Long id) {
         inscripcionRepository.deleteById(id);
-    }
-
-    public byte[] generarHorarioPDF(Long estudianteId) { 
-        Estudiante estudiante = estudianteService.findById(estudianteId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estudiante no encontrado"));
-            
-        List<Inscripcion> activas = inscripcionRepository.findByEstudianteIdAndEstado(estudianteId, "ACTIVA");
-
-        if (activas.isEmpty()) {
-            // Usa NOT_FOUND ya que el recurso solicitado (el PDF) no se puede generar
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El estudiante no tiene asignaturas activas para generar el horario");
-        }
-
-        // 🚨 Retorna el array de bytes generado
-        try {
-            return HorarioPDFGenerator.generarPDF(estudiante.getNombre(), activas);
-        } catch (RuntimeException e) {
-            // Captura cualquier excepción de generación de PDF y la convierte a un error HTTP 500
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno al generar el PDF: " + e.getMessage());
-        }
     }
 
     public List<Inscripcion> findInscripcionesActivas(Long estudianteId) {

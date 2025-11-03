@@ -91,11 +91,36 @@ export class InscripcionComponent implements OnInit {
         this.selectedAsignaturaId = null;
       },
       error: (err) => {
-        // La API de Spring Boot devuelve el mensaje en 'err.error.message'
-        const msg = err.error?.message || 'Error desconocido al inscribir.';
-        alert('Error: ' + msg);
-        console.error(err);
-      }
+        // ... (Tu lógica de extracción y determinación de displayMessage) ...
+        const backendMessage = err.error?.message; 
+        let displayMessage = 'Acción no válida.';
+
+        // ... (Toda la lógica de if/else if que determina displayMessage) ...
+
+        if (backendMessage && typeof backendMessage === 'string') {
+            const lowerCaseMessage = backendMessage.toLowerCase();
+            
+            // 1. Ya Inscrito
+            if (lowerCaseMessage.includes('ya está inscrito en esta asignatura')) {
+                displayMessage = '🚫 Error: Ya estás inscrito en esta asignatura (estado ACTIVA).';
+            } 
+            // 2. Límite de Inscripciones Activas
+            else if (lowerCaseMessage.includes('límite máximo de')) {
+                displayMessage = '⚠️ Límite alcanzado: Has inscrito el número máximo de asignaturas activas.';
+            }
+            // ... (Resto de tu lógica de errores) ...
+            else {
+                 displayMessage = backendMessage; 
+            }
+        } 
+        
+        // 🔑 CLAVE: Usar setTimeout para asegurar la ejecución asíncrona.
+        setTimeout(() => {
+             alert('Error: ' + displayMessage);
+        }, 0); // Lo ejecuta tan pronto como el stack principal esté vacío
+        
+        console.error("Error al inscribir (Detalles):", err);
+      }
     });
 }
 
@@ -110,7 +135,7 @@ export class InscripcionComponent implements OnInit {
         },
         error: (err) => {
           // Usa 'message' para mensajes de error de Spring Boot
-          const msg = err.error?.message || 'Error desconocido al cancelar.';
+          const msg = err.error?.message || 'Acción no válida.';
           alert('Error: ' + msg);
           console.error(err);
         }

@@ -39,7 +39,7 @@ export class HorarioComponent implements OnInit {
     
     this.academicoService.generarHorarioPDF(this.studentId).subscribe({
       next: () => {
-        this.pdfStatus = 'Proceso de impresión/guardado iniciado. **Revisa la ventana de diálogo de tu sistema operativo** (guardar como PDF).';
+        this.pdfStatus = 'Proceso de impresión/guardado iniciado. Revisa la ventana de diálogo de tu sistema operativo (guardar como PDF).';
       },
       error: (err) => {
         const msg = err.error?.error || 'Error desconocido al generar PDF.';
