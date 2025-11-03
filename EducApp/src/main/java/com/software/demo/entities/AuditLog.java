@@ -16,7 +16,7 @@ public class AuditLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     
     private Long id;
-    private String action; // INSCRIBIR, CANCELAR, etc.
+    private String action;
     private String operador;
     private String details;
     private LocalDateTime timestamp = LocalDateTime.now();

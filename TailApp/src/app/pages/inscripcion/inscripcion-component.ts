@@ -2,15 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-// 🚨 Importar el nuevo DTO de Request
 import { AcademicoService, Asignatura, Inscripcion, InscripcionRequest } from '../../core/services/academico-service';
 import { NavbarComponent } from '../../components/navbar/navbar-component';
 
-// 🚨 NOTA: La interfaz Inscripcion ahora debe reflejar el DTO de Java
-// Inscripcion no necesita 'asignaturaId' ni 'estudianteId' directos.
-
-// El tipo de Inscripcion ahora ya incluye la asignatura por diseño del DTO de respuesta.
-// Puedes eliminar la interfaz InscripcionDetallada o renombrarla si deseas.
 type InscripcionDetallada = Inscripcion; 
 
 
@@ -23,7 +17,6 @@ type InscripcionDetallada = Inscripcion;
 export class InscripcionComponent implements OnInit {
   studentId: number | null = null;
   studentName: string | null = null;
-  // Usamos la interfaz del servicio, que ya trae la asignatura anidada
   asignaturasInscritas: Inscripcion[] = []; 
   asignaturasDisponibles: Asignatura[] = [];
   selectedAsignaturaId: number | null = null;
@@ -41,7 +34,6 @@ export class InscripcionComponent implements OnInit {
     if (!this.studentId) {
       this.router.navigate(['/login']);
     } else {
-      // Cargamos disponibles e inscripciones en paralelo o secuencia
       this.loadAsignaturasDisponibles();
       this.loadInscripciones(this.studentId!); 
     }
@@ -58,16 +50,12 @@ export class InscripcionComponent implements OnInit {
   
   loadInscripciones(id: number) {
     this.academicoService.getAsignaturasActivas(id).subscribe(
-      // 🚨 Ahora 'data' ya es la lista de Inscripcion[] detalladas
       (data: Inscripcion[]) => { 
-        // Ya no se necesita el map ni enrichInscripciones() si el DTO es correcto
         this.asignaturasInscritas = data; 
       },
       error => console.error('Error cargando inscripciones:', error)
     );
   }
-
-  // ❌ Se elimina enrichInscripciones() ya que el backend debe proveer el detalle
 
   inscribir() {
     if (!this.studentId || !this.selectedAsignaturaId) {
@@ -75,14 +63,12 @@ export class InscripcionComponent implements OnInit {
       return;
     }
 
-    // 🚨 PASO 1: Construir el DTO de Request
     const requestBody: InscripcionRequest = {
         estudianteId: this.studentId,
         asignaturaId: this.selectedAsignaturaId,
-        operador: 'CLIENTE' // Puedes obtenerlo de localStorage o dejar 'CLIENTE'
+        operador: 'ESTUDIANTE'
     };
 
-    // 🚨 PASO 2: Llamar al servicio, pasando el DTO en el cuerpo (body)
     this.academicoService.inscribirAsignatura(requestBody).subscribe({
       next: () => {
         alert('Asignatura inscrita con éxito.');
@@ -91,33 +77,26 @@ export class InscripcionComponent implements OnInit {
         this.selectedAsignaturaId = null;
       },
       error: (err) => {
-        // ... (Tu lógica de extracción y determinación de displayMessage) ...
         const backendMessage = err.error?.message; 
         let displayMessage = 'Acción no válida.';
-
-        // ... (Toda la lógica de if/else if que determina displayMessage) ...
 
         if (backendMessage && typeof backendMessage === 'string') {
             const lowerCaseMessage = backendMessage.toLowerCase();
             
-            // 1. Ya Inscrito
             if (lowerCaseMessage.includes('ya está inscrito en esta asignatura')) {
                 displayMessage = '🚫 Error: Ya estás inscrito en esta asignatura (estado ACTIVA).';
             } 
-            // 2. Límite de Inscripciones Activas
             else if (lowerCaseMessage.includes('límite máximo de')) {
                 displayMessage = '⚠️ Límite alcanzado: Has inscrito el número máximo de asignaturas activas.';
             }
-            // ... (Resto de tu lógica de errores) ...
             else {
                  displayMessage = backendMessage; 
             }
         } 
         
-        // 🔑 CLAVE: Usar setTimeout para asegurar la ejecución asíncrona.
         setTimeout(() => {
              alert('Error: ' + displayMessage);
-        }, 0); // Lo ejecuta tan pronto como el stack principal esté vacío
+        }, 0);
         
         console.error("Error al inscribir (Detalles):", err);
       }
@@ -129,12 +108,10 @@ export class InscripcionComponent implements OnInit {
       this.academicoService.cancelarInscripcion(inscripcionId).subscribe({
         next: () => {
           alert('Inscripción cancelada con éxito.');
-          // Recargar datos para actualizar la lista de inscripciones activas
           this.loadAsignaturasDisponibles();
           this.loadInscripciones(this.studentId!);
         },
         error: (err) => {
-          // Usa 'message' para mensajes de error de Spring Boot
           const msg = err.error?.message || 'Acción no válida.';
           alert('Error: ' + msg);
           console.error(err);

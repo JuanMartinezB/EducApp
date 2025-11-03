@@ -13,10 +13,8 @@ export class NavbarComponent {
   constructor(private router: Router) { }
 
   logout() {
-    // 1. Limpiar datos de sesión
     localStorage.removeItem('currentStudentId');
     localStorage.removeItem('currentStudentName');
-    // 2. Redirigir al login
     this.router.navigate(['/login']);
   }
 }

@@ -25,7 +25,7 @@ public class Estudiante {
     private Integer semestreActual;
 
     @Column(name = "estado", nullable = false)
-    private String estado; // ACTIVO, INACTIVO, GRADUADO
+    private String estado;
     
     @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL)
     private List<Inscripcion> inscripciones = new ArrayList<>();

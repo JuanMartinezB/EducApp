@@ -35,17 +35,24 @@ export class HorarioComponent implements OnInit {
         return;
     }
 
-    this.pdfStatus = 'Iniciando generación del horario... Esto abrirá una ventana de diálogo.';
-    
-    this.academicoService.generarHorarioPDF(this.studentId).subscribe({
-      next: () => {
-        this.pdfStatus = 'Proceso de impresión/guardado iniciado. Revisa la ventana de diálogo de tu sistema operativo (guardar como PDF).';
-      },
-      error: (err) => {
-        const msg = err.error?.error || 'Error desconocido al generar PDF.';
-        this.pdfStatus = `Error al generar el horario: ${msg}`;
-        console.error('Error en PDF:', err);
-      }
+    this.academicoService.generarHorarioPdf(this.studentId).subscribe({
+        next: (blob) => {
+            const url = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Horario_Estudiante_${this.studentId}.pdf`; 
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            window.URL.revokeObjectURL(url);
+        },
+        error: (err) => {
+            alert('Error: No se pudo generar o descargar el horario. Consulte el log del servidor.');
+            console.error('Error de descarga de PDF:', err);
+        }
     });
   }
 }

@@ -62,17 +62,14 @@ public class InscripcionService {
         Asignatura asignatura = asignaturaService.findById(asignaturaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Asignatura no encontrada"));
 
-        // RN03 - Estado académico
         if (!"ACTIVO".equalsIgnoreCase(estudiante.getEstado())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo estudiantes con estado ACTIVO pueden inscribirse");
         }
 
-        // RN02 - Límite de cupos (Lo hacemos más específico para que Angular lo detecte)
         if (asignatura.getCupoActual() >= asignatura.getCupoMaximo()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cupo máximo alcanzado");
         }
 
-        // RN01 - Prerrequisitos: verificar que haya aprobado cada prerrequisito con nota >= 3.0
         for (Asignatura prereq : asignatura.getPrerrequisitos()) {
             boolean ok = historialAcademicoService.hasApproved(estudianteId, prereq.getId(), NOTA_MINIMA_PRERREQ);
             if (!ok) {
@@ -80,22 +77,18 @@ public class InscripcionService {
             }
         }
 
-        // Regla de límite de inscripciones activas por estudiante
         List<Inscripcion> activas = inscripcionRepository.findByEstudianteIdAndEstado(estudianteId, "ACTIVA");
         if (activas.size() >= rulesConfig.getMaxActiveEnrollments()) {
-            // 🚨 MEJORA: Incluir el número en el mensaje.
             String limite = String.valueOf(rulesConfig.getMaxActiveEnrollments());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ha alcanzado el límite máximo de " + limite + " inscripciones activas");
         }
 
-        // RN04 - Conflictos de horario (verificación básica)
         if (hasScheduleConflict(estudianteId, asignatura)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Conflicto de horario con otra asignatura inscrita");
         }
 
         boolean alreadyActive = inscripcionRepository.existsByEstudianteIdAndAsignaturaIdAndEstado(estudianteId, asignaturaId, "ACTIVA");
         if (alreadyActive) {
-            // Código y mensaje perfectos para Angular
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya está inscrito en esta asignatura");
         }
 
@@ -118,7 +111,6 @@ public class InscripcionService {
 
         List<Inscripcion> activas = inscripcionRepository.findByEstudianteIdAndEstado(estudianteId, "ACTIVA");
 
-        // Parsear los horarios del nuevo curso
         List<CalendarioUtils.TimeSlot> slotsNuevo = CalendarioUtils.parseHorario(newAsignatura.getHorario());
 
         for (Inscripcion ins : activas) {
@@ -142,23 +134,19 @@ public class InscripcionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Inscripción ya cancelada");
         }
 
-        // Validar periodo de cancelación
         long diasDesdeInscripcion = ChronoUnit.DAYS.between(ins.getFechaInscripcion(), LocalDate.now());
         if (diasDesdeInscripcion > rulesConfig.getCancelationDays()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No se puede cancelar: periodo de cancelación vencido");
         }
 
-        // Marcar cancelada, registrar fecha y auditoría
         ins.setEstado("CANCELADA");
         ins.setFechaCancelacion(LocalDate.now());
         ins.setOperadorAudit(operador);
         ins.setAuditTimestamp(java.time.LocalDateTime.now());
         inscripcionRepository.save(ins);
 
-        // Liberar cupo de forma atómica
         asignaturaRepository.decrementCupoIfPossible(ins.getAsignatura().getId());
 
-        // Registrar auditoría
         auditLogService.log("INSCRIPCION_CANCELADA", operador,
                 "Inscripción " + ins.getId() + " cancelada para estudiante " + ins.getEstudiante().getNombre());
     }

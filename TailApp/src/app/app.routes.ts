@@ -10,7 +10,6 @@ export const routes: Routes = [
   { path: 'historial', component: HistorialComponent },
   { path: 'horario', component: HorarioComponent },
   
-  // Ruta por defecto y comodín
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' } 
 ];

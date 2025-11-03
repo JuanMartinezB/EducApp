@@ -28,7 +28,6 @@ public class AsignaturaService {
         return asignaturaRepository.findById(id);
     }
     
-    // Método general de guardado
     public Asignatura save(Asignatura asignatura) {
         return asignaturaRepository.save(asignatura);
     }
@@ -37,19 +36,17 @@ public class AsignaturaService {
         asignaturaRepository.deleteById(id);
     }
     
-    // 🚨 Nuevo: Guarda una asignatura a partir del DTO de Request (POST) 🚨
     @Transactional
     public Asignatura saveFromDTO(AsignaturaRequestDTO request) {
         Asignatura asignatura = new Asignatura();
         
-        // Mapear campos simples
         asignatura.setCodigo(request.getCodigo());
         asignatura.setNombre(request.getNombre());
         asignatura.setCreditos(request.getCreditos());
         asignatura.setCupoMaximo(request.getCupoMaximo());
         asignatura.setSemestre(request.getSemestre());
         asignatura.setHorario(request.getHorario());
-        asignatura.setCupoActual(0); // Inicializar cupo en 0
+        asignatura.setCupoActual(0);
         
         if (request.getPrerrequisitosIds() != null && !request.getPrerrequisitosIds().isEmpty()) {
             List<Asignatura> prerrequisitos = new ArrayList<>();
@@ -61,22 +58,19 @@ public class AsignaturaService {
         return asignaturaRepository.save(asignatura);
     }
 
-    // 🚨 Nuevo: Actualiza una asignatura a partir del DTO de Request (PUT) 🚨
     @Transactional
     public Asignatura updateFromDTO(Long id, AsignaturaRequestDTO request) {
         Asignatura existingAsignatura = asignaturaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Asignatura no encontrada con ID: " + id));
 
-        // Mapear campos simples
         existingAsignatura.setCodigo(request.getCodigo());
         existingAsignatura.setNombre(request.getNombre());
         existingAsignatura.setCreditos(request.getCreditos());
         existingAsignatura.setCupoMaximo(request.getCupoMaximo());
         existingAsignatura.setSemestre(request.getSemestre());
         existingAsignatura.setHorario(request.getHorario());
-        // NO actualiza cupoActual ni ID
 
-        existingAsignatura.getPrerrequisitos().clear(); // Limpiar colección actual
+        existingAsignatura.getPrerrequisitos().clear();
         if (request.getPrerrequisitosIds() != null && !request.getPrerrequisitosIds().isEmpty()) {
             List<Asignatura> prerrequisitos = new ArrayList<>();
             for (Long reqId : request.getPrerrequisitosIds()) {

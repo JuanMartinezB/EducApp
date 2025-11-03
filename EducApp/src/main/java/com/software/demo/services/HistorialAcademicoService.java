@@ -37,7 +37,6 @@ public class HistorialAcademicoService {
         return historialAcademicoRepository.findById(id);
     }
     
-    // Método general de guardado
     public HistorialAcademico save(HistorialAcademico historialAcademico) {
         return historialAcademicoRepository.save(historialAcademico);
     }
@@ -46,7 +45,6 @@ public class HistorialAcademicoService {
         historialAcademicoRepository.deleteById(id);
     }
     
-    // 🚨 Nuevo: Guarda historial a partir del DTO de Request (POST) 🚨
     @Transactional
     public HistorialAcademico saveFromDTO(HistorialAcademicoRequestDTO request) {
         Estudiante estudiante = estudianteRepository.findById(request.getEstudianteId())
@@ -64,13 +62,11 @@ public class HistorialAcademicoService {
         return historialAcademicoRepository.save(historial);
     }
 
-    // 🚨 Nuevo: Actualiza historial a partir del DTO de Request (PUT) 🚨
     @Transactional
     public HistorialAcademico updateFromDTO(Long id, HistorialAcademicoRequestDTO request) {
         HistorialAcademico existingHistorial = historialAcademicoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Registro de Historial no encontrado con ID: " + id));
 
-        // Revalidar y actualizar Estudiante y Asignatura si cambiaron
         if (!existingHistorial.getEstudiante().getId().equals(request.getEstudianteId())) {
              Estudiante estudiante = estudianteRepository.findById(request.getEstudianteId())
                 .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + request.getEstudianteId()));
@@ -83,7 +79,6 @@ public class HistorialAcademicoService {
              existingHistorial.setAsignatura(asignatura);
         }
         
-        // Actualizar campos
         existingHistorial.setNota(request.getNota());
         existingHistorial.setSemestre(request.getSemestre());
         

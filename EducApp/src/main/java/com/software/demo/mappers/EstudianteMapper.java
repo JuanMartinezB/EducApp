@@ -8,7 +8,6 @@ import com.software.demo.entities.Estudiante;
 
 public class EstudianteMapper {
 
-    // 1. Mapeo a DTO para LISTAS (Sin colecciones para evitar bucles)
     public static EstudianteListadoDTO toEstudianteListadoDTO(Estudiante estudiante) {
         if (estudiante == null) return null;
 
@@ -20,11 +19,9 @@ public class EstudianteMapper {
         dto.setSemestreActual(estudiante.getSemestreActual());
         dto.setEstado(estudiante.getEstado());
         
-        // NO se mapean Inscripciones ni Historial Académico
         return dto;
     }
 
-    // 2. Mapeo a DTO para LOGIN/PERFIL (Incluye inscripciones como DTOs)
     public static EstudianteLoginDTO toEstudianteLoginDTO(Estudiante estudiante) {
         if (estudiante == null) return null;
 
@@ -35,7 +32,6 @@ public class EstudianteMapper {
         dto.setEmail(estudiante.getEmail());
         dto.setEstado(estudiante.getEstado());
         
-        // Mapea la colección de Inscripciones a DTOs de Inscripción (limpios)
         if (estudiante.getInscripciones() != null) {
             dto.setInscripciones(estudiante.getInscripciones().stream()
                 .map(InscripcionMapper::toInscripcionDTO)

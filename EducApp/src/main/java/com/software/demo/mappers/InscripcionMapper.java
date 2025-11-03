@@ -5,7 +5,6 @@ import com.software.demo.entities.Inscripcion;
 
 public class InscripcionMapper {
 
-    // Mapeo a DTO para SALIDA (Respuesta limpia de Inscripción)
     public static InscripcionDTO toInscripcionDTO(Inscripcion inscripcion) {
         if (inscripcion == null) return null;
 
@@ -15,12 +14,10 @@ public class InscripcionMapper {
         dto.setFechaCancelacion(inscripcion.getFechaCancelacion());
         dto.setEstado(inscripcion.getEstado());
         
-        // Usa el AsignaturaMapper para limpiar la referencia anidada
         if (inscripcion.getAsignatura() != null) {
             dto.setAsignatura(AsignaturaMapper.toAsignaturaDTO(inscripcion.getAsignatura()));
         }
 
-        // NO se mapea la entidad Estudiante
         dto.setOperadorAudit(inscripcion.getOperadorAudit());
         dto.setAuditTimestamp(inscripcion.getAuditTimestamp());
 

@@ -19,7 +19,7 @@ public class Inscripcion {
     private LocalDate fechaCancelacion;
 
     @Column(name = "estado", nullable = false)
-    private String estado; // ACTIVA, CANCELADA
+    private String estado;
 
     @Column(name = "operador_audit")
     private String operadorAudit;

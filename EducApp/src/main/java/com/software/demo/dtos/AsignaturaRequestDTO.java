@@ -10,8 +10,6 @@ public class AsignaturaRequestDTO {
     private Integer cupoMaximo;
     private Integer semestre;
     private String horario;
-    
-    // 🚨 Nueva lista para recibir solo IDs de los prerrequisitos 🚨
     private List<Long> prerrequisitosIds;
 
     public AsignaturaRequestDTO() {}
