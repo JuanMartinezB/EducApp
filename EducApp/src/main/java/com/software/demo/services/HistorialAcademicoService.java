@@ -98,5 +98,9 @@ public class HistorialAcademicoService {
                 .findByEstudianteIdAndAsignaturaId(estudianteId, asignaturaId);
         return historialOpt.isPresent() && historialOpt.get().getNota() >= NOTA_MINIMA_APROBACION;
     }
-    
+
+    public List<HistorialAcademico> findByEstudianteId(Long estudianteId) {
+        return historialAcademicoRepository.findByEstudianteId(estudianteId);
+    }
+
 }

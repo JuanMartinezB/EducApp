@@ -78,8 +78,11 @@ export class AcademicoService {
     }
 
     getHistorialAcademico(estudianteId: number): Observable<HistorialAcademico[]> {
-        const params = new HttpParams().set('estudianteId', estudianteId.toString());
-        return this.http.get<HistorialAcademico[]>(`${this.apiUrl}/historial-academico`, { params });
+    // Se elimina HttpParams
+    // const params = new HttpParams().set('estudianteId', estudianteId.toString());
+ 
+ // Se usa la nueva URL con el ID
+        return this.http.get<HistorialAcademico[]>(`${this.apiUrl}/historial-academico/estudiante/${estudianteId}`);
     }
 
     generarHorarioPdf(estudianteId: number): Observable<Blob> {

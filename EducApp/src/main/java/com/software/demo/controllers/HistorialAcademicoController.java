@@ -43,7 +43,8 @@ public class HistorialAcademicoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<HistorialAcademicoDTO> updateHistorialAcademico(@PathVariable Long id, @RequestBody HistorialAcademicoRequestDTO historialDetails) {
+    public ResponseEntity<HistorialAcademicoDTO> updateHistorialAcademico(@PathVariable Long id,
+            @RequestBody HistorialAcademicoRequestDTO historialDetails) {
         Optional<HistorialAcademico> historialAcademico = historialAcademicoService.findById(id);
         if (historialAcademico.isPresent()) {
             HistorialAcademico updatedHistorial = historialAcademicoService.updateFromDTO(id, historialDetails);
@@ -61,5 +62,12 @@ public class HistorialAcademicoController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/estudiante/{estudianteId}")
+    public List<HistorialAcademicoDTO> getHistorialPorEstudiante(@PathVariable Long estudianteId) {
+        return historialAcademicoService.findByEstudianteId(estudianteId).stream()
+                .map(HistorialAcademicoMapper::toHistorialAcademicoDTO)
+                .collect(Collectors.toList());
     }
 }
